@@ -4,18 +4,14 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from scipy.spatial.distance import cosine
 
-
 def similarity(v1, v2):
     score = 0.0
     if np.count_nonzero(v1) != 0 and np.count_nonzero(v2) != 0:
         score = ((1 - cosine(v1, v2)) + 1) / 2
     return score
 
-
 class Preprocessing:
-
     extra_stopwords = ["''", "``", "'s"]
-
     def __init__(self):
         return
     def sent_tokenize(self, text):
@@ -39,4 +35,3 @@ class Preprocessing:
             words = [w for w in words if w not in stops]
             sentences_cleaned.append(" ".join(words))
         return sentences_cleaned
-

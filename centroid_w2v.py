@@ -18,7 +18,6 @@ def average_score(scores):
         return score
     else:
         return 0
-########################################################################################################################
 
 def get_max_length(sentences):
     max_length = 0
@@ -28,12 +27,10 @@ def get_max_length(sentences):
             max_length = l
     return max_length
 
-########################################################################################################################
-
 class CentroidSummarizer(Preprocessing.Preprocessing):
 
     def __init__(self):
-        word2vec_model_path = 'C:\\Users\\HP\\Desktop\\wiki.en.vec'
+        word2vec_model_path = 'wiki.en.vec'
         self.word2vec = word2vec.KeyedVectors.load_word2vec_format(word2vec_model_path, binary=True,
                                                                    unicode_errors='ignore')
         self.index2word_set = set(self.word2vec.wv.index2word)
@@ -44,8 +41,7 @@ class CentroidSummarizer(Preprocessing.Preprocessing):
         self.length_param = 0
         self.position_param = 0
         self.sim_threshold = 0.95
-        print('coucou')
-        # Création des vecteurs de centroid
+        
         count = 0
         self.centroid_space = np.zeros(self.word2vec.vector_size, dtype="float32")
         for w in self.index2word_set:
@@ -54,8 +50,6 @@ class CentroidSummarizer(Preprocessing.Preprocessing):
         if count != 0:
             self.centroid_space = np.divide(self.centroid_space, count)
         return
-
-########################################################################################################################
 
     def get_bow(self, sentences):
         vectorizer = CountVectorizer()
@@ -71,8 +65,6 @@ class CentroidSummarizer(Preprocessing.Preprocessing):
             if centroid_vector[i] <= self.topic_threshold:
                 centroid_vector[i] = 0
         return tfidf, centroid_vector
-
-########################################################################################################################
 
     def get_topic_idf(self, sentences):
         vectorizer = CountVectorizer()
@@ -92,7 +84,6 @@ class CentroidSummarizer(Preprocessing.Preprocessing):
                 word_list.append(feature_names[i])
 
         return word_list
-########################################################################################################################
 
     def word_vectors_cache(self, sentences):
         self.word_vectors = dict()
@@ -106,9 +97,6 @@ class CentroidSummarizer(Preprocessing.Preprocessing):
                         self.word_vectors[w] = self.word2vec[w]
         return
 
-########################################################################################################################
-
-    # La representation de la phrase sous forme de vecteurs de mots
     def compose_vectors(self, words):
         composed_vector = np.zeros(self.word2vec.vector_size, dtype="float32")
         word_vectors_keys = set(self.word_vectors.keys())
@@ -121,14 +109,11 @@ class CentroidSummarizer(Preprocessing.Preprocessing):
             composed_vector = np.divide(composed_vector, count)
         return composed_vector
 
-########################################################################################################################
-
     def summarize(self, text, limit):
         raw_sentences = self.sent_tokenize(text)
         clean_sentences = self.preprocess_text(text)
         centroid_words = self.get_topic_idf(clean_sentences)
 
-        # Affichage des mots les plus important
         print("*** CENTROID WORDS ***")
         print(len(centroid_words), centroid_words)
 
@@ -138,7 +123,6 @@ class CentroidSummarizer(Preprocessing.Preprocessing):
         tfidf, centroid_bow = self.get_bow(clean_sentences)
         max_length = get_max_length(clean_sentences)
 
-        # Calcul des scores de chaque phrase
         sentences_scores = []
         for i in range(len(clean_sentences)):
             scores = []
@@ -153,7 +137,6 @@ class CentroidSummarizer(Preprocessing.Preprocessing):
             score = average_score(scores)
             sentences_scores.append((i, raw_sentences[i], score, sentence_vector))
 
-        # Classement des phrases selon le score et la longueur du résumé
         sentence_scores_sort = sorted(sentences_scores, key=lambda el: el[2], reverse=True)
         count = 0
         sentences_summary = []
@@ -177,7 +160,6 @@ class CentroidSummarizer(Preprocessing.Preprocessing):
                 sentences_summary.append(s)
                 count += 1
 
-        # ordonancement des phrases pour le résumé finale
         sentences_summary = sorted(sentences_summary, key=lambda el: el[0], reverse=False)
         summary = " ".join([s[1] for s in sentences_summary])
 
